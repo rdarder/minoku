@@ -35,6 +35,7 @@ jobs:
         run: |
           mkdir -p build/web
           godot --headless --export-release "Web" build/web/index.html
+          touch build/web/.nojekyll
 
       - name: Upload GitHub Pages Artifact
         uses: actions/upload-pages-artifact@v3
