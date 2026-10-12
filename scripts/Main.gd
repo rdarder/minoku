@@ -43,6 +43,7 @@ var displayed_score: int = 0
 @onready var btn_restart_same: Button = $ScreenCenter/PortraitLayout/BottomHUD/BtnRestartSame
 @onready var btn_carry_on: Button = $ScreenCenter/PortraitLayout/BottomHUD/BtnCarryOn
 @onready var btn_assist: Button = $ScreenCenter/PortraitLayout/BottomHUD/BtnAssist
+@onready var btn_share: Button = $ScreenCenter/PortraitLayout/BottomHUD/BtnShare
 @onready var btn_fullscreen: Button = $ScreenCenter/PortraitLayout/BottomHUD/BtnFullscreen
 @onready var btn_open_menu: Button = $ScreenCenter/PortraitLayout/BottomHUD/BtnOpenMenu
 @onready var top_hud: VBoxContainer = $ScreenCenter/PortraitLayout/TopHUD
@@ -59,6 +60,7 @@ var displayed_score: int = 0
 @onready var btn_restart_same_land: Button = $ScreenCenter/LandscapeLayout/SideRight/BtnRestartSameLand
 @onready var btn_carry_on_land: Button = $ScreenCenter/LandscapeLayout/SideRight/BtnCarryOnLand
 @onready var btn_assist_land: Button = $ScreenCenter/LandscapeLayout/SideRight/BtnAssistLand
+@onready var btn_share_land: Button = $ScreenCenter/LandscapeLayout/SideRight/BtnShareLand
 @onready var btn_fullscreen_land: Button = $ScreenCenter/LandscapeLayout/SideRight/BtnFullscreenLand
 @onready var btn_open_menu_land: Button = $ScreenCenter/LandscapeLayout/SideRight/BtnOpenMenuLand
 
@@ -78,9 +80,16 @@ var displayed_score: int = 0
 @onready var breakdown_box: VBoxContainer = $BannerOverlay/BannerPanel/Margin/BannerVBox/BreakdownBox
 @onready var level_pts_title: Label = $BannerOverlay/BannerPanel/Margin/BannerVBox/BreakdownBox/LevelPtsRow/LevelPtsTitle
 @onready var level_pts_val: Label = $BannerOverlay/BannerPanel/Margin/BannerVBox/BreakdownBox/LevelPtsRow/LevelPtsVal
+@onready var time_pts_title: Label = $BannerOverlay/BannerPanel/Margin/BannerVBox/BreakdownBox/TimePtsRow/TimePtsTitle
 @onready var time_pts_val: Label = $BannerOverlay/BannerPanel/Margin/BannerVBox/BreakdownBox/TimePtsRow/TimePtsVal
 @onready var award_total_label: Label = $BannerOverlay/BannerPanel/Margin/BannerVBox/AwardTotalLabel
+@onready var btn_banner_play: Button = $BannerOverlay/BannerPanel/Margin/BannerVBox/BtnBannerPlay
 @onready var flying_score_label: Label = $BannerOverlay/FlyingScoreLabel
+
+# Gesture tracking
+var active_touch_cell: Vector2i = Vector2i(-1, -1)
+var touch_press_token: int = 0
+var is_long_press_active: bool = false
 
 func _ready():
 	get_viewport().size_changed.connect(_on_viewport_size_changed)
@@ -88,8 +97,43 @@ func _ready():
 	_setup_badge_styles()
 	_setup_banner_styles()
 	_setup_hud_button_styles()
-	_start_new_game(6)
+	
+	var starting_size = 6
+	var starting_seed = -1
+	if OS.has_feature("web"):
+		var query = JavaScriptBridge.eval("window.location.search")
+		if query and typeof(query) == TYPE_STRING and query.length() > 0:
+			var parsed = _parse_level_query(query)
+			if parsed.has("size"):
+				starting_size = parsed["size"]
+			if parsed.has("seed"):
+				starting_seed = parsed["seed"]
+				
+	_start_new_game(starting_size, starting_seed)
 	_update_responsive_layout()
+
+func _parse_level_query(query: String) -> Dictionary:
+	var result = {}
+	var clean = query.lstrip("?")
+	var pairs = clean.split("&")
+	for pair in pairs:
+		var kv = pair.split("=")
+		if kv.size() == 2:
+			var key = kv[0].to_lower()
+			var val = kv[1]
+			if key == "level" or key == "seed":
+				if "-" in val:
+					var parts = val.split("-")
+					var size_str = parts[0].to_lower().replace("x", " ")
+					var tokens = size_str.split(" ", false)
+					if tokens.size() > 0:
+						var s = tokens[0].to_int()
+						if s in [6, 8, 10]:
+							result["size"] = s
+					result["seed"] = parts[1].to_int()
+				else:
+					result["seed"] = val.to_int()
+	return result
 
 func _on_viewport_size_changed():
 	_update_responsive_layout()
@@ -328,7 +372,11 @@ func _start_new_game(size: int, explicit_seed: int = -1):
 	flying_score_label.visible = false
 	breakdown_box.visible = false
 	award_total_label.visible = false
+	if btn_banner_play:
+		btn_banner_play.visible = false
 	modal_overlay.visible = false
+	active_touch_cell = Vector2i(-1, -1)
+	is_long_press_active = false
 	
 	player_grid.clear()
 	for r in range(grid_size):
@@ -438,30 +486,68 @@ func _build_grid_ui():
 			btn.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 			
 			btn.gui_input.connect(_on_cell_gui_input.bind(r, c))
+			btn.mouse_exited.connect(_on_cell_mouse_exited.bind(r, c))
 			grid_container.add_child(btn)
 			
 	_refresh_cell_views()
+
+func _on_cell_mouse_exited(r: int, c: int):
+	if active_touch_cell == Vector2i(r, c):
+		active_touch_cell = Vector2i(-1, -1)
+		is_long_press_active = false
 
 func _on_cell_gui_input(event: InputEvent, r: int, c: int):
 	if game_state != GameState.PLAYING:
 		return
 		
-	if event is InputEventMouseButton and event.pressed:
-		moves_count += 1
-		var current_state = player_grid[r][c]
-		
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+			# Desktop right click: toggle cross
+			moves_count += 1
+			var cur = player_grid[r][c]
+			player_grid[r][c] = 0 if cur == 2 else 2
+			_animate_cell_pop(r, c)
+			_update_bomb_counter()
+			_refresh_cell_views()
+			return
+
 		if event.button_index == MOUSE_BUTTON_LEFT:
-			player_grid[r][c] = (current_state + 1) % 3
-		elif event.button_index == MOUSE_BUTTON_RIGHT:
-			if current_state == 2:
-				player_grid[r][c] = 0
-			else:
-				player_grid[r][c] = 2
+			if event.pressed:
+				active_touch_cell = Vector2i(r, c)
+				is_long_press_active = false
+				touch_press_token += 1
+				var this_token = touch_press_token
 				
-		_animate_cell_pop(r, c)
-		_update_bomb_counter()
-		_refresh_cell_views()
-		_check_game_rules(r, c)
+				# Hold down threshold (320ms) places/toggles cross
+				get_tree().create_timer(0.32).timeout.connect(func():
+					if active_touch_cell == Vector2i(r, c) and touch_press_token == this_token and game_state == GameState.PLAYING:
+						is_long_press_active = true
+						moves_count += 1
+						var cur = player_grid[r][c]
+						player_grid[r][c] = 0 if cur == 2 else 2
+						_animate_cell_pop(r, c)
+						_update_bomb_counter()
+						_refresh_cell_views()
+				)
+			else:
+				if active_touch_cell == Vector2i(r, c):
+					active_touch_cell = Vector2i(-1, -1)
+					if not is_long_press_active:
+						# Short tap:
+						# 0 (blank) -> 1 (bomb)
+						# 1 (bomb)  -> 0 (blank)
+						# 2 (cross) -> 0 (blank)
+						moves_count += 1
+						var cur = player_grid[r][c]
+						if cur == 0:
+							player_grid[r][c] = 1
+						else:
+							player_grid[r][c] = 0
+						_animate_cell_pop(r, c)
+						_update_bomb_counter()
+						_refresh_cell_views()
+						_check_game_rules(r, c)
+					is_long_press_active = false
 
 func _animate_cell_pop(r: int, c: int):
 	var idx = r * grid_size + c
@@ -582,6 +668,9 @@ func _trigger_game_over_explosion(culprit_cells: Array):
 	breakdown_box.visible = false
 	award_total_label.visible = false
 	flying_score_label.visible = false
+	if btn_banner_play:
+		btn_banner_play.text = "RETRY"
+		btn_banner_play.visible = true
 	banner_panel.modulate.a = 1.0
 	banner_panel.scale = Vector2.ONE
 	banner_overlay.visible = true
@@ -643,7 +732,7 @@ func _trigger_game_over_explosion(culprit_cells: Array):
 func _calculate_level_score(completion_time: float) -> Dictionary:
 	var base_score = grid_size * 100
 	if not hints_used_this_level:
-		base_score *= 2 # 2x bonus for zero hint assistance
+		base_score *= 10 # 10x bonus for zero hint assistance
 		
 	var half_life = 2.0 * grid_size
 	var time_bonus = int(round(base_score * pow(0.5, completion_time / half_life)))
@@ -662,6 +751,8 @@ func _trigger_victory_sequence():
 	var completion_time = (Time.get_ticks_msec() - start_time) / 1000.0
 	var score_info = _calculate_level_score(completion_time)
 	var awarded_points = score_info["total"]
+	var base_pts = score_info["base"]
+	var time_pts = score_info["time_bonus"]
 	var old_score = current_run_score
 	
 	var record = {
@@ -701,14 +792,22 @@ func _trigger_victory_sequence():
 	banner_sub_label.visible = false
 	breakdown_box.visible = true
 	if score_info["no_hints"]:
-		level_pts_title.text = "LEVEL CLEAR (2× BONUS)"
+		level_pts_title.text = "LEVEL CLEAR (10× BONUS)"
 	else:
 		level_pts_title.text = "LEVEL CLEAR"
-	level_pts_val.text = "+%d" % score_info["base"]
-	time_pts_val.text = "+%d" % score_info["time_bonus"]
-	award_total_label.text = "+%d PTS" % awarded_points
+	level_pts_val.text = "+%d" % base_pts
+	
+	# Initial time row setup
+	var init_mins = int(completion_time) / 60
+	var init_secs = int(completion_time) % 60
+	time_pts_title.text = "TIME %02d:%02d" % [init_mins, init_secs]
+	time_pts_val.text = "+0"
+	award_total_label.text = "+%d PTS" % base_pts
 	award_total_label.visible = true
 	flying_score_label.visible = false
+	if btn_banner_play:
+		btn_banner_play.text = "PLAY"
+		btn_banner_play.visible = false
 	banner_overlay.visible = true
 
 	# Pop in the breakdown banner panel
@@ -716,54 +815,67 @@ func _trigger_victory_sequence():
 	await get_tree().process_frame
 	banner_panel.reset_size()
 	banner_panel.pivot_offset = banner_panel.size * 0.5
-	banner_panel.scale = Vector2(0.82, 0.82)
+	banner_panel.scale = Vector2(0.85, 0.85)
 	
 	var tw_banner_in = create_tween().set_parallel(true)
 	tw_banner_in.tween_property(banner_panel, "modulate:a", 1.0, 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	tw_banner_in.tween_property(banner_panel, "scale", Vector2.ONE, 0.32).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	await tw_banner_in.finished
 
-	# 2. Hold breakdown for player to read
-	await get_tree().create_timer(0.9).timeout
+	# Small pause before time tally begins
+	await get_tree().create_timer(0.35).timeout
 	if game_state != GameState.WON:
 		return
 
-	# 3. Prepare the flying score label right over the total award
-	var award_rect = award_total_label.get_global_rect()
-	flying_score_label.text = "+%d" % awarded_points
-	flying_score_label.size = award_rect.size
-	flying_score_label.global_position = award_rect.position
-	flying_score_label.pivot_offset = flying_score_label.size * 0.5
-	flying_score_label.scale = Vector2.ONE
-	flying_score_label.modulate.a = 1.0
-	flying_score_label.visible = true
-	award_total_label.visible = false
+	# 2. Mario Bros tally: count time backwards from elapsed time to 0, converting time into score via exponential curve
+	var tally_duration = 1.35
+	var half_life = 2.0 * grid_size
+	var tw_tally = create_tween()
+	tw_tally.tween_method(func(progress: float):
+		var remaining_t = max(0.0, completion_time * (1.0 - progress))
+		var r_mins = int(remaining_t) / 60
+		var r_secs = int(remaining_t) % 60
+		time_pts_title.text = "TIME %02d:%02d" % [r_mins, r_secs]
+		_update_timer_display(r_mins, r_secs)
+		
+		var current_time_pts = 0
+		if time_pts > 0 and completion_time > 0.05:
+			var u = completion_time - remaining_t
+			var denom = 1.0 - pow(0.5, completion_time / half_life)
+			if denom > 0.0001:
+				var numer = 1.0 - pow(0.5, u / half_life)
+				current_time_pts = int(round(time_pts * (numer / denom)))
+		else:
+			current_time_pts = int(round(time_pts * progress))
+		current_time_pts = clamp(current_time_pts, 0, time_pts)
+		time_pts_val.text = "+%d" % current_time_pts
+		award_total_label.text = "+%d PTS" % (base_pts + current_time_pts)
+	, 0.0, 1.0, tally_duration).set_trans(Tween.TRANS_LINEAR)
 
-	# 4. Target score badge
-	var is_landscape = landscape_layout.visible
-	var target_badge: Control = score_badge_land if is_landscape else score_badge
-	var target_center = target_badge.get_global_rect().get_center()
-	var fly_target_pos = target_center - flying_score_label.size * 0.5
-
-	# 5. Fly score label to target badge while fading out banner panel
-	var tw_fly = create_tween().set_parallel(true)
-	tw_fly.tween_property(banner_panel, "modulate:a", 0.0, 0.28).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	tw_fly.tween_property(banner_panel, "scale", Vector2(0.85, 0.85), 0.28).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	tw_fly.tween_property(flying_score_label, "global_position", fly_target_pos, 0.55).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-	tw_fly.tween_property(flying_score_label, "scale", Vector2(0.75, 0.75), 0.55).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
-
-	await tw_fly.finished
+	await tw_tally.finished
 	if game_state != GameState.WON:
 		return
 
-	# 6. Transfer completed: close overlay, roll up accumulated score, show play/next button
-	flying_score_label.visible = false
-	banner_overlay.visible = false
-	banner_panel.modulate.a = 1.0
-	banner_panel.scale = Vector2.ONE
-	
+	time_pts_title.text = "TIME 00:00"
+	time_pts_val.text = "+%d" % time_pts
+	award_total_label.text = "+%d PTS" % awarded_points
+	_update_timer_display(0, 0)
+
+	# 3. Roll up accumulated score
 	current_run_score += awarded_points
 	GameData.update_high_score(current_run_score)
 	_animate_score_addition(old_score, current_run_score)
+
+	# 4. Show the PLAY button on the victory banner (banner stays visible!)
+	if btn_banner_play:
+		btn_banner_play.visible = true
+		btn_banner_play.modulate.a = 0.0
+		btn_banner_play.scale = Vector2(0.8, 0.8)
+		btn_banner_play.pivot_offset = btn_banner_play.size * 0.5
+		var tw_btn = create_tween().set_parallel(true)
+		tw_btn.tween_property(btn_banner_play, "modulate:a", 1.0, 0.2)
+		tw_btn.tween_property(btn_banner_play, "scale", Vector2.ONE, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	
 	_update_hud_action_buttons()
 
 func _animate_score_addition(from_val: int, to_val: int):
@@ -843,6 +955,8 @@ func _reveal_solution_and_transition(next_size: int):
 		)
 
 func _on_carry_on_pressed():
+	if banner_overlay and banner_overlay.visible:
+		banner_overlay.visible = false
 	_start_new_game(pending_next_size)
 
 func _on_restart_same_pressed():
@@ -951,11 +1065,56 @@ func _on_fullscreen_pressed():
 	_update_responsive_layout()
 	_refresh_cell_views()
 
+func _on_share_pressed():
+	var level_code = puzzle_data.get("level_code", "")
+	if level_code.is_empty():
+		return
+		
+	# Bouncy animation on share button
+	for s_btn in [btn_share, btn_share_land]:
+		if s_btn and s_btn.is_inside_tree():
+			var tw = create_tween()
+			tw.tween_property(s_btn, "scale", Vector2(1.22, 1.22), 0.1).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+			tw.tween_property(s_btn, "scale", Vector2(1.0, 1.0), 0.12).set_trans(Tween.TRANS_SPRING).set_ease(Tween.EASE_OUT)
+
+	var share_url = ""
+	if OS.has_feature("web"):
+		var base = JavaScriptBridge.eval("window.location.origin + window.location.pathname")
+		if base and typeof(base) == TYPE_STRING and base.length() > 0:
+			share_url = base + "?level=" + level_code
+		else:
+			share_url = "https://rdarder.github.io/minoku/?level=" + level_code
+	else:
+		share_url = "https://rdarder.github.io/minoku/?level=" + level_code
+
+	var share_title = "Minoku"
+	var share_text = "Can you solve this %s Minoku puzzle?" % level_code
+
+	if OS.has_feature("web"):
+		var js_code = """
+		(function(title, text, url) {
+			if (navigator.share) {
+				navigator.share({ title: title, text: text, url: url }).catch(function() {});
+			} else if (navigator.clipboard && navigator.clipboard.writeText) {
+				navigator.clipboard.writeText(url).then(function() {
+					alert("Level link copied to clipboard:\\n" + url);
+				}).catch(function() {
+					prompt("Copy level link:", url);
+				});
+			} else {
+				prompt("Copy level link:", url);
+			}
+		})("%s", "%s", "%s");
+		""" % [share_title, share_text, share_url]
+		JavaScriptBridge.eval(js_code)
+	else:
+		DisplayServer.clipboard_set(share_url)
+
 func _setup_hud_button_styles():
 	var empty_style = StyleBoxEmpty.new()
 	var hud_buttons = [
-		btn_restart_same, btn_carry_on, btn_assist, btn_fullscreen, btn_open_menu,
-		btn_restart_same_land, btn_carry_on_land, btn_assist_land, btn_fullscreen_land, btn_open_menu_land
+		btn_restart_same, btn_carry_on, btn_assist, btn_share, btn_fullscreen, btn_open_menu,
+		btn_restart_same_land, btn_carry_on_land, btn_assist_land, btn_share_land, btn_fullscreen_land, btn_open_menu_land
 	]
 	for btn in hud_buttons:
 		if btn:
@@ -1003,3 +1162,22 @@ func _setup_banner_styles():
 	banner_box.shadow_size = 28
 	banner_box.shadow_offset = Vector2(0, 8)
 	banner_panel.add_theme_stylebox_override("panel", banner_box)
+
+	if btn_banner_play:
+		var play_norm = StyleBoxFlat.new()
+		play_norm.bg_color = Color("#00E676")
+		play_norm.corner_radius_top_left = 18
+		play_norm.corner_radius_top_right = 18
+		play_norm.corner_radius_bottom_left = 18
+		play_norm.corner_radius_bottom_right = 18
+		play_norm.shadow_color = Color(0, 0, 0, 0.4)
+		play_norm.shadow_size = 8
+		play_norm.shadow_offset = Vector2(0, 4)
+		btn_banner_play.add_theme_stylebox_override("normal", play_norm)
+		
+		var play_hov = play_norm.duplicate()
+		play_hov.bg_color = Color("#69F0AE")
+		btn_banner_play.add_theme_stylebox_override("hover", play_hov)
+		btn_banner_play.add_theme_stylebox_override("pressed", play_hov)
+		btn_banner_play.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+		btn_banner_play.add_theme_color_override("font_color", Color("#0A0E17"))
