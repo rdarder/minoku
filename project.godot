@@ -4,7 +4,7 @@
 
 [application]
 
-config/name="Orchard"
+config/name="Minoku"
 run/main_scene="res://scenes/Main.tscn"
 config/features=PackedStringArray("4.3", "Mobile")
 config/icon="res://icon.svg"
