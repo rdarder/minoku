@@ -43,8 +43,6 @@ var displayed_score: int = 0
 @onready var btn_restart_same: Button = $ScreenCenter/PortraitLayout/BottomHUD/BtnRestartSame
 @onready var btn_carry_on: Button = $ScreenCenter/PortraitLayout/BottomHUD/BtnCarryOn
 @onready var btn_assist: Button = $ScreenCenter/PortraitLayout/BottomHUD/BtnAssist
-@onready var btn_share: Button = $ScreenCenter/PortraitLayout/BottomHUD/BtnShare
-@onready var btn_fullscreen: Button = $ScreenCenter/PortraitLayout/BottomHUD/BtnFullscreen
 @onready var btn_open_menu: Button = $ScreenCenter/PortraitLayout/BottomHUD/BtnOpenMenu
 @onready var top_hud: VBoxContainer = $ScreenCenter/PortraitLayout/TopHUD
 @onready var bottom_hud: HBoxContainer = $ScreenCenter/PortraitLayout/BottomHUD
@@ -60,11 +58,10 @@ var displayed_score: int = 0
 @onready var btn_restart_same_land: Button = $ScreenCenter/LandscapeLayout/SideRight/BtnRestartSameLand
 @onready var btn_carry_on_land: Button = $ScreenCenter/LandscapeLayout/SideRight/BtnCarryOnLand
 @onready var btn_assist_land: Button = $ScreenCenter/LandscapeLayout/SideRight/BtnAssistLand
-@onready var btn_share_land: Button = $ScreenCenter/LandscapeLayout/SideRight/BtnShareLand
-@onready var btn_fullscreen_land: Button = $ScreenCenter/LandscapeLayout/SideRight/BtnFullscreenLand
 @onready var btn_open_menu_land: Button = $ScreenCenter/LandscapeLayout/SideRight/BtnOpenMenuLand
 
-# Overlays
+# Corner & Overlay references
+@onready var btn_fullscreen_corner: Button = $BtnFullscreenCorner
 @onready var modal_overlay: ColorRect = $ModalOverlay
 @onready var difficulty_modal: PanelContainer = $ModalOverlay/DifficultyModal
 @onready var cards_container: BoxContainer = $ModalOverlay/DifficultyModal/Margin/ModalVBox/CardsContainer
@@ -83,7 +80,8 @@ var displayed_score: int = 0
 @onready var time_pts_title: Label = $BannerOverlay/BannerPanel/Margin/BannerVBox/BreakdownBox/TimePtsRow/TimePtsTitle
 @onready var time_pts_val: Label = $BannerOverlay/BannerPanel/Margin/BannerVBox/BreakdownBox/TimePtsRow/TimePtsVal
 @onready var award_total_label: Label = $BannerOverlay/BannerPanel/Margin/BannerVBox/AwardTotalLabel
-@onready var btn_banner_play: Button = $BannerOverlay/BannerPanel/Margin/BannerVBox/BtnBannerPlay
+@onready var btn_banner_share: Button = $BannerOverlay/BannerPanel/Margin/BannerVBox/BannerBtnRow/BtnBannerShare
+@onready var btn_banner_play: Button = $BannerOverlay/BannerPanel/Margin/BannerVBox/BannerBtnRow/BtnBannerPlay
 @onready var flying_score_label: Label = $BannerOverlay/FlyingScoreLabel
 
 # Gesture tracking
@@ -97,6 +95,10 @@ func _ready():
 	_setup_badge_styles()
 	_setup_banner_styles()
 	_setup_hud_button_styles()
+	_update_fullscreen_button_visual()
+	if btn_fullscreen_corner:
+		btn_fullscreen_corner.mouse_entered.connect(func(): btn_fullscreen_corner.modulate.a = 0.95)
+		btn_fullscreen_corner.mouse_exited.connect(_update_fullscreen_button_visual)
 	
 	var starting_size = 6
 	var starting_seed = -1
@@ -209,6 +211,20 @@ func _update_responsive_layout():
 	var board_side = _calculate_cell_dimension() * grid_size + sep * (grid_size - 1)
 	top_hud.custom_minimum_size = Vector2(board_side, 0)
 	bottom_hud.custom_minimum_size = Vector2(board_side, 0)
+	
+	if banner_overlay and banner_overlay.visible:
+		_align_banner_to_board()
+
+func _align_banner_to_board():
+	if not banner_panel or not grid_container:
+		return
+	var board_rect = grid_container.get_global_rect()
+	if board_rect.size.x > 10:
+		banner_panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
+		banner_panel.global_position = board_rect.position
+		banner_panel.size = board_rect.size
+		banner_panel.custom_minimum_size = board_rect.size
+		banner_panel.pivot_offset = board_rect.size * 0.5
 
 func _calculate_cell_dimension() -> float:
 	var vp_size = get_viewport_rect().size
@@ -374,6 +390,8 @@ func _start_new_game(size: int, explicit_seed: int = -1):
 	award_total_label.visible = false
 	if btn_banner_play:
 		btn_banner_play.visible = false
+	if btn_banner_share:
+		btn_banner_share.visible = false
 	modal_overlay.visible = false
 	active_touch_cell = Vector2i(-1, -1)
 	is_long_press_active = false
@@ -668,9 +686,16 @@ func _trigger_game_over_explosion(culprit_cells: Array):
 	breakdown_box.visible = false
 	award_total_label.visible = false
 	flying_score_label.visible = false
+	_align_banner_to_board()
 	if btn_banner_play:
 		btn_banner_play.text = "RETRY"
 		btn_banner_play.visible = true
+		btn_banner_play.modulate.a = 1.0
+		btn_banner_play.scale = Vector2.ONE
+	if btn_banner_share:
+		btn_banner_share.visible = true
+		btn_banner_share.modulate.a = 1.0
+		btn_banner_share.scale = Vector2.ONE
 	banner_panel.modulate.a = 1.0
 	banner_panel.scale = Vector2.ONE
 	banner_overlay.visible = true
@@ -806,15 +831,15 @@ func _trigger_victory_sequence():
 	award_total_label.visible = true
 	flying_score_label.visible = false
 	if btn_banner_play:
-		btn_banner_play.text = "PLAY"
+		btn_banner_play.text = "NEXT"
 		btn_banner_play.visible = false
+	if btn_banner_share:
+		btn_banner_share.visible = false
+	_align_banner_to_board()
 	banner_overlay.visible = true
 
 	# Pop in the breakdown banner panel
 	banner_panel.modulate.a = 0.0
-	await get_tree().process_frame
-	banner_panel.reset_size()
-	banner_panel.pivot_offset = banner_panel.size * 0.5
 	banner_panel.scale = Vector2(0.85, 0.85)
 	
 	var tw_banner_in = create_tween().set_parallel(true)
@@ -866,8 +891,9 @@ func _trigger_victory_sequence():
 	GameData.update_high_score(current_run_score)
 	_animate_score_addition(old_score, current_run_score)
 
-	# 4. Show the PLAY button on the victory banner (banner stays visible!)
+	# 4. Show the NEXT and SHARE buttons on the victory banner (banner stays visible!)
 	if btn_banner_play:
+		btn_banner_play.text = "NEXT"
 		btn_banner_play.visible = true
 		btn_banner_play.modulate.a = 0.0
 		btn_banner_play.scale = Vector2(0.8, 0.8)
@@ -875,6 +901,15 @@ func _trigger_victory_sequence():
 		var tw_btn = create_tween().set_parallel(true)
 		tw_btn.tween_property(btn_banner_play, "modulate:a", 1.0, 0.2)
 		tw_btn.tween_property(btn_banner_play, "scale", Vector2.ONE, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+	if btn_banner_share:
+		btn_banner_share.visible = true
+		btn_banner_share.modulate.a = 0.0
+		btn_banner_share.scale = Vector2(0.8, 0.8)
+		btn_banner_share.pivot_offset = btn_banner_share.size * 0.5
+		var tw_share = create_tween().set_parallel(true)
+		tw_share.tween_property(btn_banner_share, "modulate:a", 1.0, 0.2)
+		tw_share.tween_property(btn_banner_share, "scale", Vector2.ONE, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	
 	_update_hud_action_buttons()
 
@@ -1062,20 +1097,26 @@ func _on_fullscreen_pressed():
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 	else:
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+	_update_fullscreen_button_visual()
 	_update_responsive_layout()
 	_refresh_cell_views()
+
+func _update_fullscreen_button_visual():
+	if not btn_fullscreen_corner:
+		return
+	var is_fs = (DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN or DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)
+	btn_fullscreen_corner.modulate.a = 0.18 if is_fs else 0.75
 
 func _on_share_pressed():
 	var level_code = puzzle_data.get("level_code", "")
 	if level_code.is_empty():
 		return
 		
-	# Bouncy animation on share button
-	for s_btn in [btn_share, btn_share_land]:
-		if s_btn and s_btn.is_inside_tree():
-			var tw = create_tween()
-			tw.tween_property(s_btn, "scale", Vector2(1.22, 1.22), 0.1).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-			tw.tween_property(s_btn, "scale", Vector2(1.0, 1.0), 0.12).set_trans(Tween.TRANS_SPRING).set_ease(Tween.EASE_OUT)
+	# Bouncy animation on banner share button
+	if btn_banner_share and btn_banner_share.is_inside_tree():
+		var tw = create_tween()
+		tw.tween_property(btn_banner_share, "scale", Vector2(1.15, 1.15), 0.1).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		tw.tween_property(btn_banner_share, "scale", Vector2.ONE, 0.12).set_trans(Tween.TRANS_SPRING).set_ease(Tween.EASE_OUT)
 
 	var share_url = ""
 	if OS.has_feature("web"):
@@ -1113,8 +1154,9 @@ func _on_share_pressed():
 func _setup_hud_button_styles():
 	var empty_style = StyleBoxEmpty.new()
 	var hud_buttons = [
-		btn_restart_same, btn_carry_on, btn_assist, btn_share, btn_fullscreen, btn_open_menu,
-		btn_restart_same_land, btn_carry_on_land, btn_assist_land, btn_share_land, btn_fullscreen_land, btn_open_menu_land
+		btn_restart_same, btn_carry_on, btn_assist, btn_open_menu,
+		btn_restart_same_land, btn_carry_on_land, btn_assist_land, btn_open_menu_land,
+		btn_fullscreen_corner
 	]
 	for btn in hud_buttons:
 		if btn:
@@ -1149,10 +1191,10 @@ func _setup_badge_styles():
 func _setup_banner_styles():
 	var banner_box = StyleBoxFlat.new()
 	banner_box.bg_color = Color("#13161F")
-	banner_box.corner_radius_top_left = 24
-	banner_box.corner_radius_top_right = 24
-	banner_box.corner_radius_bottom_left = 24
-	banner_box.corner_radius_bottom_right = 24
+	banner_box.corner_radius_top_left = 20
+	banner_box.corner_radius_top_right = 20
+	banner_box.corner_radius_bottom_left = 20
+	banner_box.corner_radius_bottom_right = 20
 	banner_box.border_width_left = 3
 	banner_box.border_width_right = 3
 	banner_box.border_width_top = 3
@@ -1166,13 +1208,13 @@ func _setup_banner_styles():
 	if btn_banner_play:
 		var play_norm = StyleBoxFlat.new()
 		play_norm.bg_color = Color("#00E676")
-		play_norm.corner_radius_top_left = 18
-		play_norm.corner_radius_top_right = 18
-		play_norm.corner_radius_bottom_left = 18
-		play_norm.corner_radius_bottom_right = 18
+		play_norm.corner_radius_top_left = 16
+		play_norm.corner_radius_top_right = 16
+		play_norm.corner_radius_bottom_left = 16
+		play_norm.corner_radius_bottom_right = 16
 		play_norm.shadow_color = Color(0, 0, 0, 0.4)
-		play_norm.shadow_size = 8
-		play_norm.shadow_offset = Vector2(0, 4)
+		play_norm.shadow_size = 6
+		play_norm.shadow_offset = Vector2(0, 3)
 		btn_banner_play.add_theme_stylebox_override("normal", play_norm)
 		
 		var play_hov = play_norm.duplicate()
@@ -1181,3 +1223,25 @@ func _setup_banner_styles():
 		btn_banner_play.add_theme_stylebox_override("pressed", play_hov)
 		btn_banner_play.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 		btn_banner_play.add_theme_color_override("font_color", Color("#0A0E17"))
+
+	if btn_banner_share:
+		var share_norm = StyleBoxFlat.new()
+		share_norm.bg_color = Color("#222633")
+		share_norm.corner_radius_top_left = 16
+		share_norm.corner_radius_top_right = 16
+		share_norm.corner_radius_bottom_left = 16
+		share_norm.corner_radius_bottom_right = 16
+		share_norm.border_width_left = 2
+		share_norm.border_width_right = 2
+		share_norm.border_width_top = 2
+		share_norm.border_width_bottom = 2
+		share_norm.border_color = Color("#3B4254")
+		btn_banner_share.add_theme_stylebox_override("normal", share_norm)
+		
+		var share_hov = share_norm.duplicate()
+		share_hov.bg_color = Color("#2E3445")
+		share_hov.border_color = Color("#555F77")
+		btn_banner_share.add_theme_stylebox_override("hover", share_hov)
+		btn_banner_share.add_theme_stylebox_override("pressed", share_hov)
+		btn_banner_share.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+		btn_banner_share.add_theme_color_override("font_color", Color("#E0E0E0"))

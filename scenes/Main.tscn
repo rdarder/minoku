@@ -146,11 +146,11 @@ theme_override_constants/v_separation = 8
 
 [node name="BottomHUD" type="HBoxContainer" parent="ScreenCenter/PortraitLayout"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 24
 alignment = 1
 
 [node name="BtnRestartSame" type="Button" parent="ScreenCenter/PortraitLayout/BottomHUD"]
-custom_minimum_size = Vector2(56, 56)
+custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 focus_mode = 0
 icon = ExtResource("3_refresh")
@@ -159,7 +159,7 @@ expand_icon = true
 
 [node name="BtnCarryOn" type="Button" parent="ScreenCenter/PortraitLayout/BottomHUD"]
 visible = false
-custom_minimum_size = Vector2(56, 56)
+custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 focus_mode = 0
 icon = ExtResource("6_play")
@@ -167,7 +167,7 @@ icon_alignment = 1
 expand_icon = true
 
 [node name="BtnAssist" type="Button" parent="ScreenCenter/PortraitLayout/BottomHUD"]
-custom_minimum_size = Vector2(56, 56)
+custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 focus_mode = 0
 toggle_mode = true
@@ -176,24 +176,8 @@ icon = ExtResource("5_bulb")
 icon_alignment = 1
 expand_icon = true
 
-[node name="BtnShare" type="Button" parent="ScreenCenter/PortraitLayout/BottomHUD"]
-custom_minimum_size = Vector2(56, 56)
-layout_mode = 2
-focus_mode = 0
-icon = ExtResource("8_share")
-icon_alignment = 1
-expand_icon = true
-
-[node name="BtnFullscreen" type="Button" parent="ScreenCenter/PortraitLayout/BottomHUD"]
-custom_minimum_size = Vector2(56, 56)
-layout_mode = 2
-focus_mode = 0
-icon = ExtResource("7_fullscreen")
-icon_alignment = 1
-expand_icon = true
-
 [node name="BtnOpenMenu" type="Button" parent="ScreenCenter/PortraitLayout/BottomHUD"]
-custom_minimum_size = Vector2(56, 56)
+custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 focus_mode = 0
 icon = ExtResource("4_plus")
@@ -298,11 +282,11 @@ layout_mode = 2
 
 [node name="SideRight" type="VBoxContainer" parent="ScreenCenter/LandscapeLayout"]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 16
 alignment = 1
 
 [node name="BtnRestartSameLand" type="Button" parent="ScreenCenter/LandscapeLayout/SideRight"]
-custom_minimum_size = Vector2(52, 52)
+custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 focus_mode = 0
 icon = ExtResource("3_refresh")
@@ -311,7 +295,7 @@ expand_icon = true
 
 [node name="BtnCarryOnLand" type="Button" parent="ScreenCenter/LandscapeLayout/SideRight"]
 visible = false
-custom_minimum_size = Vector2(52, 52)
+custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 focus_mode = 0
 icon = ExtResource("6_play")
@@ -319,7 +303,7 @@ icon_alignment = 1
 expand_icon = true
 
 [node name="BtnAssistLand" type="Button" parent="ScreenCenter/LandscapeLayout/SideRight"]
-custom_minimum_size = Vector2(52, 52)
+custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 focus_mode = 0
 toggle_mode = true
@@ -328,24 +312,8 @@ icon = ExtResource("5_bulb")
 icon_alignment = 1
 expand_icon = true
 
-[node name="BtnShareLand" type="Button" parent="ScreenCenter/LandscapeLayout/SideRight"]
-custom_minimum_size = Vector2(52, 52)
-layout_mode = 2
-focus_mode = 0
-icon = ExtResource("8_share")
-icon_alignment = 1
-expand_icon = true
-
-[node name="BtnFullscreenLand" type="Button" parent="ScreenCenter/LandscapeLayout/SideRight"]
-custom_minimum_size = Vector2(52, 52)
-layout_mode = 2
-focus_mode = 0
-icon = ExtResource("7_fullscreen")
-icon_alignment = 1
-expand_icon = true
-
 [node name="BtnOpenMenuLand" type="Button" parent="ScreenCenter/LandscapeLayout/SideRight"]
-custom_minimum_size = Vector2(52, 52)
+custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 focus_mode = 0
 icon = ExtResource("4_plus")
@@ -378,20 +346,20 @@ grow_vertical = 2
 
 [node name="Margin" type="MarginContainer" parent="BannerOverlay/BannerPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 28
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 28
-theme_override_constants/margin_bottom = 24
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 16
 
 [node name="BannerVBox" type="VBoxContainer" parent="BannerOverlay/BannerPanel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 8
 alignment = 1
 
 [node name="BannerLabel" type="Label" parent="BannerOverlay/BannerPanel/Margin/BannerVBox"]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 54
+theme_override_font_sizes/font_size = 40
 text = "💥 BOOM! 💥"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -400,14 +368,14 @@ vertical_alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.9, 0.4, 1)
 theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 24
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="BreakdownBox" type="VBoxContainer" parent="BannerOverlay/BannerPanel/Margin/BannerVBox"]
 visible = false
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 4
 
 [node name="LevelPtsRow" type="HBoxContainer" parent="BannerOverlay/BannerPanel/Margin/BannerVBox/BreakdownBox"]
 layout_mode = 2
@@ -417,14 +385,14 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.7, 0.74, 0.82, 1)
 theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 22
 text = "LEVEL CLEAR"
 
 [node name="LevelPtsVal" type="Label" parent="BannerOverlay/BannerPanel/Margin/BannerVBox/BreakdownBox/LevelPtsRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 22
 text = "+600"
 horizontal_alignment = 2
 
@@ -436,14 +404,14 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.7, 0.74, 0.82, 1)
 theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 22
 text = "SPEED BONUS"
 
 [node name="TimePtsVal" type="Label" parent="BannerOverlay/BannerPanel/Margin/BannerVBox/BreakdownBox/TimePtsRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.95, 0.5, 1)
 theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 22
 text = "+420"
 horizontal_alignment = 2
 
@@ -452,20 +420,36 @@ visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.88, 0.3, 1)
 theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 48
+theme_override_font_sizes/font_size = 38
 text = "+1020"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="BtnBannerPlay" type="Button" parent="BannerOverlay/BannerPanel/Margin/BannerVBox"]
-visible = false
-custom_minimum_size = Vector2(180, 58)
+[node name="BannerBtnRow" type="HBoxContainer" parent="BannerOverlay/BannerPanel/Margin/BannerVBox"]
 layout_mode = 2
-size_flags_horizontal = 4
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="BtnBannerShare" type="Button" parent="BannerOverlay/BannerPanel/Margin/BannerVBox/BannerBtnRow"]
+visible = false
+custom_minimum_size = Vector2(130, 48)
+layout_mode = 2
 focus_mode = 0
 theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 32
-text = "PLAY"
+theme_override_font_sizes/font_size = 24
+text = "SHARE"
+icon = ExtResource("8_share")
+icon_alignment = 0
+expand_icon = true
+
+[node name="BtnBannerPlay" type="Button" parent="BannerOverlay/BannerPanel/Margin/BannerVBox/BannerBtnRow"]
+visible = false
+custom_minimum_size = Vector2(130, 48)
+layout_mode = 2
+focus_mode = 0
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 24
+text = "NEXT"
 icon = ExtResource("6_play")
 icon_alignment = 0
 expand_icon = true
@@ -561,19 +545,36 @@ theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 28
 text = "RESUME"
 
+[node name="BtnFullscreenCorner" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -58.0
+offset_top = -58.0
+offset_right = -14.0
+offset_bottom = -14.0
+grow_horizontal = 0
+grow_vertical = 0
+custom_minimum_size = Vector2(44, 44)
+focus_mode = 0
+icon = ExtResource("7_fullscreen")
+icon_alignment = 1
+expand_icon = true
+
 [connection signal="pressed" from="ScreenCenter/PortraitLayout/BottomHUD/BtnRestartSame" to="." method="_on_restart_same_pressed"]
 [connection signal="pressed" from="ScreenCenter/PortraitLayout/BottomHUD/BtnCarryOn" to="." method="_on_carry_on_pressed"]
 [connection signal="toggled" from="ScreenCenter/PortraitLayout/BottomHUD/BtnAssist" to="." method="_on_assist_toggled"]
-[connection signal="pressed" from="ScreenCenter/PortraitLayout/BottomHUD/BtnShare" to="." method="_on_share_pressed"]
-[connection signal="pressed" from="ScreenCenter/PortraitLayout/BottomHUD/BtnFullscreen" to="." method="_on_fullscreen_pressed"]
 [connection signal="pressed" from="ScreenCenter/PortraitLayout/BottomHUD/BtnOpenMenu" to="." method="_on_open_menu_pressed"]
 [connection signal="pressed" from="ScreenCenter/LandscapeLayout/SideRight/BtnRestartSameLand" to="." method="_on_restart_same_pressed"]
 [connection signal="pressed" from="ScreenCenter/LandscapeLayout/SideRight/BtnCarryOnLand" to="." method="_on_carry_on_pressed"]
 [connection signal="toggled" from="ScreenCenter/LandscapeLayout/SideRight/BtnAssistLand" to="." method="_on_assist_toggled"]
-[connection signal="pressed" from="ScreenCenter/LandscapeLayout/SideRight/BtnShareLand" to="." method="_on_share_pressed"]
-[connection signal="pressed" from="ScreenCenter/LandscapeLayout/SideRight/BtnFullscreenLand" to="." method="_on_fullscreen_pressed"]
 [connection signal="pressed" from="ScreenCenter/LandscapeLayout/SideRight/BtnOpenMenuLand" to="." method="_on_open_menu_pressed"]
-[connection signal="pressed" from="BannerOverlay/BannerPanel/Margin/BannerVBox/BtnBannerPlay" to="." method="_on_carry_on_pressed"]
+[connection signal="pressed" from="BtnFullscreenCorner" to="." method="_on_fullscreen_pressed"]
+[connection signal="pressed" from="BannerOverlay/BannerPanel/Margin/BannerVBox/BannerBtnRow/BtnBannerShare" to="." method="_on_share_pressed"]
+[connection signal="pressed" from="BannerOverlay/BannerPanel/Margin/BannerVBox/BannerBtnRow/BtnBannerPlay" to="." method="_on_carry_on_pressed"]
 [connection signal="pressed" from="ModalOverlay/DifficultyModal/Margin/ModalVBox/CardsContainer/Btn6x6" to="." method="_on_modal_size_selected" binds= [6]]
 [connection signal="pressed" from="ModalOverlay/DifficultyModal/Margin/ModalVBox/CardsContainer/Btn8x8" to="." method="_on_modal_size_selected" binds= [8]]
 [connection signal="pressed" from="ModalOverlay/DifficultyModal/Margin/ModalVBox/CardsContainer/Btn10x10" to="." method="_on_modal_size_selected" binds= [10]]
