@@ -33,28 +33,34 @@ var displayed_score: int = 0
 @onready var port_grid_center: CenterContainer = $ScreenCenter/PortraitLayout/GridCenter
 
 # HUD references (Portrait)
-@onready var timer_label: Label = $ScreenCenter/PortraitLayout/TopHUD/TopRow/TimerBadge/Margin/TimerLabel
-@onready var bomb_counter: Label = $ScreenCenter/PortraitLayout/TopHUD/TopRow/BombBadge/Margin/BombCounter
+@onready var bomb_counter: Label = $ScreenCenter/PortraitLayout/TopHUD/TopRow/BombCounter
+@onready var timer_m1: Label = $ScreenCenter/PortraitLayout/TopHUD/TopRow/TimerContainer/TimerM1
+@onready var timer_m2: Label = $ScreenCenter/PortraitLayout/TopHUD/TopRow/TimerContainer/TimerM2
+@onready var timer_s1: Label = $ScreenCenter/PortraitLayout/TopHUD/TopRow/TimerContainer/TimerS1
+@onready var timer_s2: Label = $ScreenCenter/PortraitLayout/TopHUD/TopRow/TimerContainer/TimerS2
 @onready var score_label: Label = $ScreenCenter/PortraitLayout/TopHUD/ScoreRow/ScoreBadge/Margin/ScoreLabel
 @onready var score_badge: PanelContainer = $ScreenCenter/PortraitLayout/TopHUD/ScoreRow/ScoreBadge
-@onready var bomb_badge: PanelContainer = $ScreenCenter/PortraitLayout/TopHUD/TopRow/BombBadge
-@onready var timer_badge: PanelContainer = $ScreenCenter/PortraitLayout/TopHUD/TopRow/TimerBadge
 @onready var btn_restart_same: Button = $ScreenCenter/PortraitLayout/BottomHUD/BtnRestartSame
 @onready var btn_carry_on: Button = $ScreenCenter/PortraitLayout/BottomHUD/BtnCarryOn
 @onready var btn_assist: Button = $ScreenCenter/PortraitLayout/BottomHUD/BtnAssist
+@onready var btn_fullscreen: Button = $ScreenCenter/PortraitLayout/BottomHUD/BtnFullscreen
+@onready var btn_open_menu: Button = $ScreenCenter/PortraitLayout/BottomHUD/BtnOpenMenu
 @onready var top_hud: VBoxContainer = $ScreenCenter/PortraitLayout/TopHUD
 @onready var bottom_hud: HBoxContainer = $ScreenCenter/PortraitLayout/BottomHUD
 
 # HUD references (Landscape)
-@onready var timer_label_land: Label = $ScreenCenter/LandscapeLayout/SideLeft/TimerBadgeLand/Margin/TimerLabelLand
-@onready var bomb_counter_land: Label = $ScreenCenter/LandscapeLayout/SideLeft/BombBadgeLand/Margin/BombCounterLand
+@onready var bomb_counter_land: Label = $ScreenCenter/LandscapeLayout/SideLeft/BombCounterLand
+@onready var timer_m1_land: Label = $ScreenCenter/LandscapeLayout/SideLeft/TimerContainerLand/TimerM1Land
+@onready var timer_m2_land: Label = $ScreenCenter/LandscapeLayout/SideLeft/TimerContainerLand/TimerM2Land
+@onready var timer_s1_land: Label = $ScreenCenter/LandscapeLayout/SideLeft/TimerContainerLand/TimerS1Land
+@onready var timer_s2_land: Label = $ScreenCenter/LandscapeLayout/SideLeft/TimerContainerLand/TimerS2Land
 @onready var score_label_land: Label = $ScreenCenter/LandscapeLayout/SideLeft/ScoreBadgeLand/Margin/ScoreLabelLand
 @onready var score_badge_land: PanelContainer = $ScreenCenter/LandscapeLayout/SideLeft/ScoreBadgeLand
-@onready var bomb_badge_land: PanelContainer = $ScreenCenter/LandscapeLayout/SideLeft/BombBadgeLand
-@onready var timer_badge_land: PanelContainer = $ScreenCenter/LandscapeLayout/SideLeft/TimerBadgeLand
 @onready var btn_restart_same_land: Button = $ScreenCenter/LandscapeLayout/SideRight/BtnRestartSameLand
 @onready var btn_carry_on_land: Button = $ScreenCenter/LandscapeLayout/SideRight/BtnCarryOnLand
 @onready var btn_assist_land: Button = $ScreenCenter/LandscapeLayout/SideRight/BtnAssistLand
+@onready var btn_fullscreen_land: Button = $ScreenCenter/LandscapeLayout/SideRight/BtnFullscreenLand
+@onready var btn_open_menu_land: Button = $ScreenCenter/LandscapeLayout/SideRight/BtnOpenMenuLand
 
 # Overlays
 @onready var modal_overlay: ColorRect = $ModalOverlay
@@ -81,6 +87,7 @@ func _ready():
 	_setup_difficulty_modal_styles()
 	_setup_badge_styles()
 	_setup_banner_styles()
+	_setup_hud_button_styles()
 	_start_new_game(6)
 	_update_responsive_layout()
 
@@ -93,13 +100,37 @@ func _process(_delta):
 		var elapsed = (Time.get_ticks_msec() - start_time) / 1000
 		var mins = elapsed / 60
 		var secs = elapsed % 60
-		var time_str = "%02d:%02d" % [mins, secs]
-		timer_label.text = time_str
-		timer_label_land.text = time_str
+		_update_timer_display(mins, secs)
+
+func _update_timer_display(mins: int, secs: int):
+	var m1 = str(clamp(mins / 10, 0, 9))
+	var m2 = str(clamp(mins % 10, 0, 9))
+	var s1 = str(clamp(secs / 10, 0, 9))
+	var s2 = str(clamp(secs % 10, 0, 9))
+	
+	if timer_m1: timer_m1.text = m1
+	if timer_m2: timer_m2.text = m2
+	if timer_s1: timer_s1.text = s1
+	if timer_s2: timer_s2.text = s2
+	
+	if timer_m1_land: timer_m1_land.text = m1
+	if timer_m2_land: timer_m2_land.text = m2
+	if timer_s1_land: timer_s1_land.text = s1
+	if timer_s2_land: timer_s2_land.text = s2
+
+func _get_grid_separation() -> int:
+	var vp_size = get_viewport_rect().size
+	var is_landscape = vp_size.x > vp_size.y
+	if is_landscape and vp_size.y < 480.0:
+		return 4 if grid_size >= 8 else 6
+	return 8
 
 func _update_responsive_layout():
 	var vp_size = get_viewport_rect().size
 	var is_landscape = vp_size.x > vp_size.y
+	var sep = _get_grid_separation()
+	grid_container.add_theme_constant_override("h_separation", sep)
+	grid_container.add_theme_constant_override("v_separation", sep)
 	
 	if is_landscape:
 		portrait_layout.visible = false
@@ -109,12 +140,12 @@ func _update_responsive_layout():
 			
 		# Responsive DifficultyModal (Landscape: side-by-side cards)
 		if difficulty_modal and cards_container:
-			difficulty_modal.custom_minimum_size = Vector2(920, 0)
+			difficulty_modal.custom_minimum_size = Vector2(min(920, vp_size.x - 40), 0)
 			cards_container.vertical = false
 			cards_container.add_theme_constant_override("separation", 16)
-			btn_6x6.custom_minimum_size = Vector2(260, 130)
-			btn_8x8.custom_minimum_size = Vector2(260, 130)
-			btn_10x10.custom_minimum_size = Vector2(260, 130)
+			btn_6x6.custom_minimum_size = Vector2(220, 110)
+			btn_8x8.custom_minimum_size = Vector2(220, 110)
+			btn_10x10.custom_minimum_size = Vector2(220, 110)
 	else:
 		portrait_layout.visible = true
 		landscape_layout.visible = false
@@ -123,7 +154,7 @@ func _update_responsive_layout():
 			
 		# Responsive DifficultyModal (Portrait: vertical cards)
 		if difficulty_modal and cards_container:
-			difficulty_modal.custom_minimum_size = Vector2(600, 0)
+			difficulty_modal.custom_minimum_size = Vector2(min(600, vp_size.x - 40), 0)
 			cards_container.vertical = true
 			cards_container.add_theme_constant_override("separation", 18)
 			btn_6x6.custom_minimum_size = Vector2(0, 116)
@@ -131,19 +162,26 @@ func _update_responsive_layout():
 			btn_10x10.custom_minimum_size = Vector2(0, 116)
 			
 	# Dynamically match TopHUD and BottomHUD width strictly to the grid's pixel width
-	var board_side = _calculate_cell_dimension() * grid_size + 8 * (grid_size - 1)
+	var board_side = _calculate_cell_dimension() * grid_size + sep * (grid_size - 1)
 	top_hud.custom_minimum_size = Vector2(board_side, 0)
 	bottom_hud.custom_minimum_size = Vector2(board_side, 0)
 
 func _calculate_cell_dimension() -> float:
 	var vp_size = get_viewport_rect().size
 	var is_landscape = vp_size.x > vp_size.y
+	var sep = _get_grid_separation()
 	if is_landscape:
-		var max_h = vp_size.y - 120.0
-		return clamp(floor((max_h - (grid_size - 1) * 8) / grid_size), 42.0, 110.0)
+		# Maximize board size in landscape: leave just 44px top/bottom padding
+		var max_h = vp_size.y - 44.0
+		# Leave room for left and right side controls (approx 180-220px total)
+		var max_w = vp_size.x - 210.0
+		var max_avail = min(max_h, max_w)
+		return clamp(floor((max_avail - (grid_size - 1) * sep) / grid_size), 36.0, 110.0)
 	else:
-		var max_w = vp_size.x - 48.0
-		return clamp(floor((max_w - (grid_size - 1) * 8) / grid_size), 50.0, 116.0)
+		var max_w = vp_size.x - 40.0
+		var max_h = vp_size.y - 280.0
+		var max_avail = min(max_w, max_h)
+		return clamp(floor((max_avail - (grid_size - 1) * sep) / grid_size), 44.0, 116.0)
 
 # Curated 10-color high-contrast game palette:
 # 0: Ruby Red, 1: Emerald Green, 2: Sky/Cyan Blue, 3: Sun Yellow, 4: Royal Purple,
@@ -328,6 +366,7 @@ func _start_new_game(size: int, explicit_seed: int = -1):
 	_update_hud_action_buttons()
 	_update_score_labels()
 	_update_bomb_counter()
+	_update_timer_display(0, 0)
 	_update_responsive_layout()
 	_build_grid_ui()
 
@@ -903,28 +942,46 @@ func _style_card_button(btn: Button, accent: Color):
 	btn.add_theme_stylebox_override("pressed", hov)
 	btn.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 
+func _on_fullscreen_pressed():
+	var mode = DisplayServer.window_get_mode()
+	if mode == DisplayServer.WINDOW_MODE_FULLSCREEN or mode == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	else:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+	_update_responsive_layout()
+	_refresh_cell_views()
+
+func _setup_hud_button_styles():
+	var empty_style = StyleBoxEmpty.new()
+	var hud_buttons = [
+		btn_restart_same, btn_carry_on, btn_assist, btn_fullscreen, btn_open_menu,
+		btn_restart_same_land, btn_carry_on_land, btn_assist_land, btn_fullscreen_land, btn_open_menu_land
+	]
+	for btn in hud_buttons:
+		if btn:
+			btn.focus_mode = Control.FOCUS_NONE
+			btn.add_theme_stylebox_override("normal", empty_style)
+			btn.add_theme_stylebox_override("pressed", empty_style)
+			btn.add_theme_stylebox_override("hover", empty_style)
+			btn.add_theme_stylebox_override("hover_pressed", empty_style)
+			btn.add_theme_stylebox_override("focus", empty_style)
+			btn.add_theme_stylebox_override("disabled", empty_style)
+
 func _setup_badge_styles():
-	var normal_badge = StyleBoxFlat.new()
-	normal_badge.bg_color = Color("#151822")
-	normal_badge.corner_radius_top_left = 16
-	normal_badge.corner_radius_top_right = 16
-	normal_badge.corner_radius_bottom_left = 16
-	normal_badge.corner_radius_bottom_right = 16
-	normal_badge.border_width_left = 2
-	normal_badge.border_width_right = 2
-	normal_badge.border_width_top = 2
-	normal_badge.border_width_bottom = 2
-	normal_badge.border_color = Color("#2A3042")
-	normal_badge.shadow_color = Color(0, 0, 0, 0.4)
-	normal_badge.shadow_size = 6
-	normal_badge.shadow_offset = Vector2(0, 3)
-
-	var score_badge_style = normal_badge.duplicate()
+	var score_badge_style = StyleBoxFlat.new()
+	score_badge_style.bg_color = Color("#151822")
+	score_badge_style.corner_radius_top_left = 16
+	score_badge_style.corner_radius_top_right = 16
+	score_badge_style.corner_radius_bottom_left = 16
+	score_badge_style.corner_radius_bottom_right = 16
+	score_badge_style.border_width_left = 2
+	score_badge_style.border_width_right = 2
+	score_badge_style.border_width_top = 2
+	score_badge_style.border_width_bottom = 2
 	score_badge_style.border_color = Color("#FFD54F").lerp(Color("#2A3042"), 0.5)
-
-	for b in [bomb_badge, timer_badge, bomb_badge_land, timer_badge_land]:
-		if b:
-			b.add_theme_stylebox_override("panel", normal_badge)
+	score_badge_style.shadow_color = Color(0, 0, 0, 0.4)
+	score_badge_style.shadow_size = 6
+	score_badge_style.shadow_offset = Vector2(0, 3)
 
 	for sb in [score_badge, score_badge_land]:
 		if sb:

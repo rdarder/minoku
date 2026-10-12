@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://bv514w6y37pqu"]
+[gd_scene load_steps=8 format=3 uid="uid://bv514w6y37pqu"]
 
 [ext_resource type="Script" path="res://scripts/Main.gd" id="1_script"]
 [ext_resource type="FontFile" uid="uid://df2oac6q7py44" path="res://assets/fonts/GameFont.ttf" id="2_font"]
@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://cim3agtw4pdcp" path="res://assets/icons/plus.svg" id="4_plus"]
 [ext_resource type="Texture2D" uid="uid://d03f34mu0pl3p" path="res://assets/icons/bulb.svg" id="5_bulb"]
 [ext_resource type="Texture2D" uid="uid://bd11ooer54k0s" path="res://assets/icons/play.svg" id="6_play"]
+[ext_resource type="Texture2D" path="res://assets/icons/fullscreen.svg" id="7_fullscreen"]
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -44,45 +45,70 @@ theme_override_constants/separation = 12
 
 [node name="TopRow" type="HBoxContainer" parent="ScreenCenter/PortraitLayout/TopHUD"]
 layout_mode = 2
-theme_override_constants/separation = 16
+alignment = 1
 
-[node name="BombBadge" type="PanelContainer" parent="ScreenCenter/PortraitLayout/TopHUD/TopRow"]
+[node name="BombCounter" type="Label" parent="ScreenCenter/PortraitLayout/TopHUD/TopRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-
-[node name="Margin" type="MarginContainer" parent="ScreenCenter/PortraitLayout/TopHUD/TopRow/BombBadge"]
-layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 8
-
-[node name="BombCounter" type="Label" parent="ScreenCenter/PortraitLayout/TopHUD/TopRow/BombBadge/Margin"]
-layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.35, 0.35, 1)
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 46
 text = "0 / 6"
 vertical_alignment = 1
 
-[node name="TimerBadge" type="PanelContainer" parent="ScreenCenter/PortraitLayout/TopHUD/TopRow"]
+[node name="TimerContainer" type="HBoxContainer" parent="ScreenCenter/PortraitLayout/TopHUD/TopRow"]
 layout_mode = 2
+theme_override_constants/separation = 0
+alignment = 2
 
-[node name="Margin" type="MarginContainer" parent="ScreenCenter/PortraitLayout/TopHUD/TopRow/TimerBadge"]
-layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 8
-
-[node name="TimerLabel" type="Label" parent="ScreenCenter/PortraitLayout/TopHUD/TopRow/TimerBadge/Margin"]
-custom_minimum_size = Vector2(140, 0)
+[node name="TimerM1" type="Label" parent="ScreenCenter/PortraitLayout/TopHUD/TopRow/TimerContainer"]
+custom_minimum_size = Vector2(34, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.95, 0.5, 1)
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 46
-text = "00:00"
-horizontal_alignment = 0
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TimerM2" type="Label" parent="ScreenCenter/PortraitLayout/TopHUD/TopRow/TimerContainer"]
+custom_minimum_size = Vector2(34, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 0.5, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 46
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TimerColon" type="Label" parent="ScreenCenter/PortraitLayout/TopHUD/TopRow/TimerContainer"]
+custom_minimum_size = Vector2(14, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 0.5, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 46
+text = ":"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TimerS1" type="Label" parent="ScreenCenter/PortraitLayout/TopHUD/TopRow/TimerContainer"]
+custom_minimum_size = Vector2(34, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 0.5, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 46
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TimerS2" type="Label" parent="ScreenCenter/PortraitLayout/TopHUD/TopRow/TimerContainer"]
+custom_minimum_size = Vector2(34, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 0.5, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 46
+text = "0"
+horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="ScoreRow" type="HBoxContainer" parent="ScreenCenter/PortraitLayout/TopHUD"]
@@ -119,7 +145,7 @@ theme_override_constants/v_separation = 8
 
 [node name="BottomHUD" type="HBoxContainer" parent="ScreenCenter/PortraitLayout"]
 layout_mode = 2
-theme_override_constants/separation = 36
+theme_override_constants/separation = 28
 alignment = 1
 
 [node name="BtnRestartSame" type="Button" parent="ScreenCenter/PortraitLayout/BottomHUD"]
@@ -149,6 +175,14 @@ icon = ExtResource("5_bulb")
 icon_alignment = 1
 expand_icon = true
 
+[node name="BtnFullscreen" type="Button" parent="ScreenCenter/PortraitLayout/BottomHUD"]
+custom_minimum_size = Vector2(76, 76)
+layout_mode = 2
+focus_mode = 0
+icon = ExtResource("7_fullscreen")
+icon_alignment = 1
+expand_icon = true
+
 [node name="BtnOpenMenu" type="Button" parent="ScreenCenter/PortraitLayout/BottomHUD"]
 custom_minimum_size = Vector2(76, 76)
 layout_mode = 2
@@ -160,31 +194,22 @@ expand_icon = true
 [node name="LandscapeLayout" type="HBoxContainer" parent="ScreenCenter"]
 visible = false
 layout_mode = 2
-theme_override_constants/separation = 40
+theme_override_constants/separation = 20
 alignment = 1
 
 [node name="SideLeft" type="VBoxContainer" parent="ScreenCenter/LandscapeLayout"]
 layout_mode = 2
-theme_override_constants/separation = 28
+theme_override_constants/separation = 16
 alignment = 1
 
-[node name="BombBadgeLand" type="PanelContainer" parent="ScreenCenter/LandscapeLayout/SideLeft"]
-layout_mode = 2
-
-[node name="Margin" type="MarginContainer" parent="ScreenCenter/LandscapeLayout/SideLeft/BombBadgeLand"]
-layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 8
-
-[node name="BombCounterLand" type="Label" parent="ScreenCenter/LandscapeLayout/SideLeft/BombBadgeLand/Margin"]
+[node name="BombCounterLand" type="Label" parent="ScreenCenter/LandscapeLayout/SideLeft"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.35, 0.35, 1)
 theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 52
+theme_override_font_sizes/font_size = 46
 text = "0 / 6"
 horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="ScoreBadgeLand" type="PanelContainer" parent="ScreenCenter/LandscapeLayout/SideLeft"]
 layout_mode = 2
@@ -204,35 +229,71 @@ theme_override_font_sizes/font_size = 44
 text = "SCORE: 0"
 horizontal_alignment = 1
 
-[node name="TimerBadgeLand" type="PanelContainer" parent="ScreenCenter/LandscapeLayout/SideLeft"]
+[node name="TimerContainerLand" type="HBoxContainer" parent="ScreenCenter/LandscapeLayout/SideLeft"]
 layout_mode = 2
+theme_override_constants/separation = 0
+alignment = 1
 
-[node name="Margin" type="MarginContainer" parent="ScreenCenter/LandscapeLayout/SideLeft/TimerBadgeLand"]
-layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 8
-
-[node name="TimerLabelLand" type="Label" parent="ScreenCenter/LandscapeLayout/SideLeft/TimerBadgeLand/Margin"]
-custom_minimum_size = Vector2(170, 0)
+[node name="TimerM1Land" type="Label" parent="ScreenCenter/LandscapeLayout/SideLeft/TimerContainerLand"]
+custom_minimum_size = Vector2(34, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.95, 0.5, 1)
 theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 54
-text = "00:00"
-horizontal_alignment = 0
+theme_override_font_sizes/font_size = 46
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TimerM2Land" type="Label" parent="ScreenCenter/LandscapeLayout/SideLeft/TimerContainerLand"]
+custom_minimum_size = Vector2(34, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 0.5, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 46
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TimerColonLand" type="Label" parent="ScreenCenter/LandscapeLayout/SideLeft/TimerContainerLand"]
+custom_minimum_size = Vector2(14, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 0.5, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 46
+text = ":"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TimerS1Land" type="Label" parent="ScreenCenter/LandscapeLayout/SideLeft/TimerContainerLand"]
+custom_minimum_size = Vector2(34, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 0.5, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 46
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TimerS2Land" type="Label" parent="ScreenCenter/LandscapeLayout/SideLeft/TimerContainerLand"]
+custom_minimum_size = Vector2(34, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 0.5, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 46
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="LandGridCenter" type="CenterContainer" parent="ScreenCenter/LandscapeLayout"]
 layout_mode = 2
 
 [node name="SideRight" type="VBoxContainer" parent="ScreenCenter/LandscapeLayout"]
 layout_mode = 2
-theme_override_constants/separation = 28
+theme_override_constants/separation = 16
 alignment = 1
 
 [node name="BtnRestartSameLand" type="Button" parent="ScreenCenter/LandscapeLayout/SideRight"]
-custom_minimum_size = Vector2(88, 88)
+custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 focus_mode = 0
 icon = ExtResource("3_refresh")
@@ -241,7 +302,7 @@ expand_icon = true
 
 [node name="BtnCarryOnLand" type="Button" parent="ScreenCenter/LandscapeLayout/SideRight"]
 visible = false
-custom_minimum_size = Vector2(88, 88)
+custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 focus_mode = 0
 icon = ExtResource("6_play")
@@ -249,7 +310,7 @@ icon_alignment = 1
 expand_icon = true
 
 [node name="BtnAssistLand" type="Button" parent="ScreenCenter/LandscapeLayout/SideRight"]
-custom_minimum_size = Vector2(88, 88)
+custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 focus_mode = 0
 toggle_mode = true
@@ -258,8 +319,16 @@ icon = ExtResource("5_bulb")
 icon_alignment = 1
 expand_icon = true
 
+[node name="BtnFullscreenLand" type="Button" parent="ScreenCenter/LandscapeLayout/SideRight"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+focus_mode = 0
+icon = ExtResource("7_fullscreen")
+icon_alignment = 1
+expand_icon = true
+
 [node name="BtnOpenMenuLand" type="Button" parent="ScreenCenter/LandscapeLayout/SideRight"]
-custom_minimum_size = Vector2(88, 88)
+custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 focus_mode = 0
 icon = ExtResource("4_plus")
@@ -465,10 +534,12 @@ text = "RESUME"
 [connection signal="pressed" from="ScreenCenter/PortraitLayout/BottomHUD/BtnRestartSame" to="." method="_on_restart_same_pressed"]
 [connection signal="pressed" from="ScreenCenter/PortraitLayout/BottomHUD/BtnCarryOn" to="." method="_on_carry_on_pressed"]
 [connection signal="toggled" from="ScreenCenter/PortraitLayout/BottomHUD/BtnAssist" to="." method="_on_assist_toggled"]
+[connection signal="pressed" from="ScreenCenter/PortraitLayout/BottomHUD/BtnFullscreen" to="." method="_on_fullscreen_pressed"]
 [connection signal="pressed" from="ScreenCenter/PortraitLayout/BottomHUD/BtnOpenMenu" to="." method="_on_open_menu_pressed"]
 [connection signal="pressed" from="ScreenCenter/LandscapeLayout/SideRight/BtnRestartSameLand" to="." method="_on_restart_same_pressed"]
 [connection signal="pressed" from="ScreenCenter/LandscapeLayout/SideRight/BtnCarryOnLand" to="." method="_on_carry_on_pressed"]
 [connection signal="toggled" from="ScreenCenter/LandscapeLayout/SideRight/BtnAssistLand" to="." method="_on_assist_toggled"]
+[connection signal="pressed" from="ScreenCenter/LandscapeLayout/SideRight/BtnFullscreenLand" to="." method="_on_fullscreen_pressed"]
 [connection signal="pressed" from="ScreenCenter/LandscapeLayout/SideRight/BtnOpenMenuLand" to="." method="_on_open_menu_pressed"]
 [connection signal="pressed" from="ModalOverlay/DifficultyModal/Margin/ModalVBox/CardsContainer/Btn6x6" to="." method="_on_modal_size_selected" binds= [6]]
 [connection signal="pressed" from="ModalOverlay/DifficultyModal/Margin/ModalVBox/CardsContainer/Btn8x8" to="." method="_on_modal_size_selected" binds= [8]]
