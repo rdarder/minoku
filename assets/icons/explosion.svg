@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Comic explosion blast star -->
+  <polygon points="64,4 82,42 124,32 98,66 126,98 84,94 72,126 50,96 12,112 30,76 2,46 44,48" fill="#FF1744" stroke="#D50000" stroke-width="4" />
+  <!-- Inner hot blast -->
+  <polygon points="64,22 76,48 104,42 86,66 106,88 78,84 70,108 54,86 28,96 40,72 20,52 48,54" fill="#FFD600" />
+  <!-- Center core -->
+  <circle cx="64" cy="68" r="16" fill="#FFFFFF" />
+</svg>

@@ -1,0 +1,476 @@
+[gd_scene load_steps=7 format=3 uid="uid://bv514w6y37pqu"]
+
+[ext_resource type="Script" path="res://scripts/Main.gd" id="1_script"]
+[ext_resource type="FontFile" uid="uid://df2oac6q7py44" path="res://assets/fonts/GameFont.ttf" id="2_font"]
+[ext_resource type="Texture2D" uid="uid://xwutqxoijq8p" path="res://assets/icons/refresh.svg" id="3_refresh"]
+[ext_resource type="Texture2D" uid="uid://cim3agtw4pdcp" path="res://assets/icons/plus.svg" id="4_plus"]
+[ext_resource type="Texture2D" uid="uid://d03f34mu0pl3p" path="res://assets/icons/bulb.svg" id="5_bulb"]
+[ext_resource type="Texture2D" uid="uid://bd11ooer54k0s" path="res://assets/icons/play.svg" id="6_play"]
+
+[node name="Main" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.1, 0.11, 0.14, 1)
+
+[node name="ScreenCenter" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PortraitLayout" type="VBoxContainer" parent="ScreenCenter"]
+layout_mode = 2
+theme_override_constants/separation = 28
+alignment = 1
+
+[node name="TopHUD" type="VBoxContainer" parent="ScreenCenter/PortraitLayout"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TopRow" type="HBoxContainer" parent="ScreenCenter/PortraitLayout/TopHUD"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="BombBadge" type="PanelContainer" parent="ScreenCenter/PortraitLayout/TopHUD/TopRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Margin" type="MarginContainer" parent="ScreenCenter/PortraitLayout/TopHUD/TopRow/BombBadge"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 8
+
+[node name="BombCounter" type="Label" parent="ScreenCenter/PortraitLayout/TopHUD/TopRow/BombBadge/Margin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.35, 0.35, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 46
+text = "0 / 6"
+vertical_alignment = 1
+
+[node name="TimerBadge" type="PanelContainer" parent="ScreenCenter/PortraitLayout/TopHUD/TopRow"]
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="ScreenCenter/PortraitLayout/TopHUD/TopRow/TimerBadge"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 8
+
+[node name="TimerLabel" type="Label" parent="ScreenCenter/PortraitLayout/TopHUD/TopRow/TimerBadge/Margin"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 0.5, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 46
+text = "00:00"
+horizontal_alignment = 0
+vertical_alignment = 1
+
+[node name="ScoreRow" type="HBoxContainer" parent="ScreenCenter/PortraitLayout/TopHUD"]
+layout_mode = 2
+alignment = 1
+
+[node name="ScoreBadge" type="PanelContainer" parent="ScreenCenter/PortraitLayout/TopHUD/ScoreRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Margin" type="MarginContainer" parent="ScreenCenter/PortraitLayout/TopHUD/ScoreRow/ScoreBadge"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 8
+
+[node name="ScoreLabel" type="Label" parent="ScreenCenter/PortraitLayout/TopHUD/ScoreRow/ScoreBadge/Margin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.88, 0.3, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 44
+text = "SCORE: 0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="GridCenter" type="CenterContainer" parent="ScreenCenter/PortraitLayout"]
+layout_mode = 2
+
+[node name="GridContainer" type="GridContainer" parent="ScreenCenter/PortraitLayout/GridCenter"]
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+
+[node name="BottomHUD" type="HBoxContainer" parent="ScreenCenter/PortraitLayout"]
+layout_mode = 2
+theme_override_constants/separation = 36
+alignment = 1
+
+[node name="BtnRestartSame" type="Button" parent="ScreenCenter/PortraitLayout/BottomHUD"]
+custom_minimum_size = Vector2(76, 76)
+layout_mode = 2
+focus_mode = 0
+icon = ExtResource("3_refresh")
+icon_alignment = 1
+expand_icon = true
+
+[node name="BtnCarryOn" type="Button" parent="ScreenCenter/PortraitLayout/BottomHUD"]
+visible = false
+custom_minimum_size = Vector2(76, 76)
+layout_mode = 2
+focus_mode = 0
+icon = ExtResource("6_play")
+icon_alignment = 1
+expand_icon = true
+
+[node name="BtnAssist" type="Button" parent="ScreenCenter/PortraitLayout/BottomHUD"]
+custom_minimum_size = Vector2(76, 76)
+layout_mode = 2
+focus_mode = 0
+toggle_mode = true
+button_pressed = true
+icon = ExtResource("5_bulb")
+icon_alignment = 1
+expand_icon = true
+
+[node name="BtnOpenMenu" type="Button" parent="ScreenCenter/PortraitLayout/BottomHUD"]
+custom_minimum_size = Vector2(76, 76)
+layout_mode = 2
+focus_mode = 0
+icon = ExtResource("4_plus")
+icon_alignment = 1
+expand_icon = true
+
+[node name="LandscapeLayout" type="HBoxContainer" parent="ScreenCenter"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 40
+alignment = 1
+
+[node name="SideLeft" type="VBoxContainer" parent="ScreenCenter/LandscapeLayout"]
+layout_mode = 2
+theme_override_constants/separation = 28
+alignment = 1
+
+[node name="BombBadgeLand" type="PanelContainer" parent="ScreenCenter/LandscapeLayout/SideLeft"]
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="ScreenCenter/LandscapeLayout/SideLeft/BombBadgeLand"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 8
+
+[node name="BombCounterLand" type="Label" parent="ScreenCenter/LandscapeLayout/SideLeft/BombBadgeLand/Margin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.35, 0.35, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 52
+text = "0 / 6"
+horizontal_alignment = 1
+
+[node name="ScoreBadgeLand" type="PanelContainer" parent="ScreenCenter/LandscapeLayout/SideLeft"]
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="ScreenCenter/LandscapeLayout/SideLeft/ScoreBadgeLand"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 8
+
+[node name="ScoreLabelLand" type="Label" parent="ScreenCenter/LandscapeLayout/SideLeft/ScoreBadgeLand/Margin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.88, 0.3, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 44
+text = "SCORE: 0"
+horizontal_alignment = 1
+
+[node name="TimerBadgeLand" type="PanelContainer" parent="ScreenCenter/LandscapeLayout/SideLeft"]
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="ScreenCenter/LandscapeLayout/SideLeft/TimerBadgeLand"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 8
+
+[node name="TimerLabelLand" type="Label" parent="ScreenCenter/LandscapeLayout/SideLeft/TimerBadgeLand/Margin"]
+custom_minimum_size = Vector2(170, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 0.5, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 54
+text = "00:00"
+horizontal_alignment = 0
+
+[node name="LandGridCenter" type="CenterContainer" parent="ScreenCenter/LandscapeLayout"]
+layout_mode = 2
+
+[node name="SideRight" type="VBoxContainer" parent="ScreenCenter/LandscapeLayout"]
+layout_mode = 2
+theme_override_constants/separation = 28
+alignment = 1
+
+[node name="BtnRestartSameLand" type="Button" parent="ScreenCenter/LandscapeLayout/SideRight"]
+custom_minimum_size = Vector2(88, 88)
+layout_mode = 2
+focus_mode = 0
+icon = ExtResource("3_refresh")
+icon_alignment = 1
+expand_icon = true
+
+[node name="BtnCarryOnLand" type="Button" parent="ScreenCenter/LandscapeLayout/SideRight"]
+visible = false
+custom_minimum_size = Vector2(88, 88)
+layout_mode = 2
+focus_mode = 0
+icon = ExtResource("6_play")
+icon_alignment = 1
+expand_icon = true
+
+[node name="BtnAssistLand" type="Button" parent="ScreenCenter/LandscapeLayout/SideRight"]
+custom_minimum_size = Vector2(88, 88)
+layout_mode = 2
+focus_mode = 0
+toggle_mode = true
+button_pressed = true
+icon = ExtResource("5_bulb")
+icon_alignment = 1
+expand_icon = true
+
+[node name="BtnOpenMenuLand" type="Button" parent="ScreenCenter/LandscapeLayout/SideRight"]
+custom_minimum_size = Vector2(88, 88)
+layout_mode = 2
+focus_mode = 0
+icon = ExtResource("4_plus")
+icon_alignment = 1
+expand_icon = true
+
+[node name="BannerOverlay" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="BannerPanel" type="PanelContainer" parent="BannerOverlay"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -340.0
+offset_top = -160.0
+offset_right = 340.0
+offset_bottom = 160.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="BannerOverlay/BannerPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 24
+
+[node name="BannerVBox" type="VBoxContainer" parent="BannerOverlay/BannerPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="BannerLabel" type="Label" parent="BannerOverlay/BannerPanel/Margin/BannerVBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 54
+text = "💥 BOOM! 💥"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BannerSubLabel" type="Label" parent="BannerOverlay/BannerPanel/Margin/BannerVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.4, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 32
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BreakdownBox" type="VBoxContainer" parent="BannerOverlay/BannerPanel/Margin/BannerVBox"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="LevelPtsRow" type="HBoxContainer" parent="BannerOverlay/BannerPanel/Margin/BannerVBox/BreakdownBox"]
+layout_mode = 2
+
+[node name="LevelPtsTitle" type="Label" parent="BannerOverlay/BannerPanel/Margin/BannerVBox/BreakdownBox/LevelPtsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.7, 0.74, 0.82, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 28
+text = "LEVEL CLEAR"
+
+[node name="LevelPtsVal" type="Label" parent="BannerOverlay/BannerPanel/Margin/BannerVBox/BreakdownBox/LevelPtsRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 28
+text = "+600"
+horizontal_alignment = 2
+
+[node name="TimePtsRow" type="HBoxContainer" parent="BannerOverlay/BannerPanel/Margin/BannerVBox/BreakdownBox"]
+layout_mode = 2
+
+[node name="TimePtsTitle" type="Label" parent="BannerOverlay/BannerPanel/Margin/BannerVBox/BreakdownBox/TimePtsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.7, 0.74, 0.82, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 28
+text = "SPEED BONUS"
+
+[node name="TimePtsVal" type="Label" parent="BannerOverlay/BannerPanel/Margin/BannerVBox/BreakdownBox/TimePtsRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 0.5, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 28
+text = "+420"
+horizontal_alignment = 2
+
+[node name="AwardTotalLabel" type="Label" parent="BannerOverlay/BannerPanel/Margin/BannerVBox"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.88, 0.3, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 48
+text = "+1020"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="FlyingScoreLabel" type="Label" parent="BannerOverlay"]
+visible = false
+layout_mode = 0
+offset_right = 160.0
+offset_bottom = 60.0
+theme_override_colors/font_color = Color(1, 0.88, 0.3, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 50
+text = "+1020"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ModalOverlay" type="ColorRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.85)
+
+[node name="DifficultyModal" type="PanelContainer" parent="ModalOverlay"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -280.0
+offset_right = 300.0
+offset_bottom = 280.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="ModalOverlay/DifficultyModal"]
+layout_mode = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 32
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 32
+
+[node name="ModalVBox" type="VBoxContainer" parent="ModalOverlay/DifficultyModal/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="CardsContainer" type="BoxContainer" parent="ModalOverlay/DifficultyModal/Margin/ModalVBox"]
+layout_mode = 2
+theme_override_constants/separation = 18
+vertical = true
+
+[node name="Btn6x6" type="Button" parent="ModalOverlay/DifficultyModal/Margin/ModalVBox/CardsContainer"]
+custom_minimum_size = Vector2(0, 116)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 46
+theme_override_colors/font_color = Color(0, 0.9, 0.46, 1)
+text = "EASY"
+
+[node name="Btn8x8" type="Button" parent="ModalOverlay/DifficultyModal/Margin/ModalVBox/CardsContainer"]
+custom_minimum_size = Vector2(0, 116)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 46
+theme_override_colors/font_color = Color(1, 0.84, 0, 1)
+text = "MEDIUM"
+
+[node name="Btn10x10" type="Button" parent="ModalOverlay/DifficultyModal/Margin/ModalVBox/CardsContainer"]
+custom_minimum_size = Vector2(0, 116)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 46
+theme_override_colors/font_color = Color(1, 0.24, 0.44, 1)
+text = "HARD"
+
+[node name="BtnCloseModal" type="Button" parent="ModalOverlay/DifficultyModal/Margin/ModalVBox"]
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+focus_mode = 0
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 28
+text = "RESUME"
+
+[connection signal="pressed" from="ScreenCenter/PortraitLayout/BottomHUD/BtnRestartSame" to="." method="_on_restart_same_pressed"]
+[connection signal="pressed" from="ScreenCenter/PortraitLayout/BottomHUD/BtnCarryOn" to="." method="_on_carry_on_pressed"]
+[connection signal="toggled" from="ScreenCenter/PortraitLayout/BottomHUD/BtnAssist" to="." method="_on_assist_toggled"]
+[connection signal="pressed" from="ScreenCenter/PortraitLayout/BottomHUD/BtnOpenMenu" to="." method="_on_open_menu_pressed"]
+[connection signal="pressed" from="ScreenCenter/LandscapeLayout/SideRight/BtnRestartSameLand" to="." method="_on_restart_same_pressed"]
+[connection signal="pressed" from="ScreenCenter/LandscapeLayout/SideRight/BtnCarryOnLand" to="." method="_on_carry_on_pressed"]
+[connection signal="toggled" from="ScreenCenter/LandscapeLayout/SideRight/BtnAssistLand" to="." method="_on_assist_toggled"]
+[connection signal="pressed" from="ScreenCenter/LandscapeLayout/SideRight/BtnOpenMenuLand" to="." method="_on_open_menu_pressed"]
+[connection signal="pressed" from="ModalOverlay/DifficultyModal/Margin/ModalVBox/CardsContainer/Btn6x6" to="." method="_on_modal_size_selected" binds= [6]]
+[connection signal="pressed" from="ModalOverlay/DifficultyModal/Margin/ModalVBox/CardsContainer/Btn8x8" to="." method="_on_modal_size_selected" binds= [8]]
+[connection signal="pressed" from="ModalOverlay/DifficultyModal/Margin/ModalVBox/CardsContainer/Btn10x10" to="." method="_on_modal_size_selected" binds= [10]]
+[connection signal="pressed" from="ModalOverlay/DifficultyModal/Margin/ModalVBox/BtnCloseModal" to="." method="_on_close_modal_pressed"]

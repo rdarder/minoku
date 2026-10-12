@@ -1,0 +1,18 @@
+# Godot 4
+.godot/
+*.translation
+
+# Build outputs
+build/
+bin/
+*.apk
+*.aab
+
+# Python scratch / cache
+__pycache__/
+*.pyc
+*.pyo
+
+# OS files
+.DS_Store
+Thumbs.db
